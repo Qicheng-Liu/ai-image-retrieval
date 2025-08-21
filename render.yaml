@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ai-image-retrieval
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn server:app"
+    autoDeploy: true
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false

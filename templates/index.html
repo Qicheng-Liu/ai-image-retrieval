@@ -1,0 +1,57 @@
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='mywebscript.js') }}" defer></script>
+    <style>
+        .center-heading {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-body" style="padding: 50px 50px;">
+      <!-- CLIENT INFORMATION -->
+      <div id="client-card" class="client-card mb-4">
+        <div class="client-card__header">
+          <h3 class="client-card__title">CLIENT INFORMATION</h3>
+          <button type="button" class="client-card__menu" aria-label="More">⋯</button>
+        </div>
+
+        <div class="client-card__row">
+          <img id="client-avatar" class="client-card__avatar" src="https://www.perfocal.com/blog/content/images/size/w960/2021/01/Perfocal_17-11-2019_TYWFAQ_100_standard-3.jpg" alt="Client photo">
+          <div class="client-card__meta">
+            <div class="client-card__name" id="client-name" contenteditable="true" spellcheck="false">Mia Lee</div>
+
+            <div class="chip-panel" id="chip-panel" role="list">
+              <!-- Chips will be rendered by JS -->
+            </div>
+
+            <div class="chip-actions">
+              <button id="add-chip-btn" class="chip chip--ghost" type="button">
+                <span class="chip__plus">+</span> Add label
+              </button>
+              <button id="edit-avatar-btn" class="chip chip--ghost" type="button">Change photo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 1: Heading -->
+      <h2 class="section-heading mb-3">ENTER A KEYWORD OR PASTE A MESSAGE</h2>
+
+      <!-- Row 2: Input + Button -->
+      <div class="d-flex align-items-center mb-4">
+      <input type="text" class="form-control" id="keywordToSearch" style="max-width: 300px;">
+      <button onclick="RetrieveImages()" class="btn btn-secondary">Search Image</button>
+      </div>
+
+      <!-- Recommending Images Section -->
+      <h2 class="section-heading mb-3">RECOMMENDED IMAGES</h2>
+      <div id="system_response"></div>
+    </div>
+  </div>
+</body>
+
