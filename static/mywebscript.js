@@ -113,6 +113,66 @@ let RetrieveImages = () => {
 };
 
 
+async function copyImageBitmapToClipboard(imgEl) {
+  try {
+    // Must run from a user gesture (your onclick handler is good)
+    if (!navigator.clipboard || !window.ClipboardItem) {
+      throw new Error("Clipboard API not supported");
+    }
+
+    // 1) Fetch the image bytes (same-origin strongly recommended)
+    const resp = await fetch(imgEl.src, { mode: "same-origin", cache: "no-cache" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    let blob = await resp.blob();
+
+    // 2) Convert to PNG if needed (Chrome often rejects image/jpeg on write)
+    if (!/^image\/png$/i.test(blob.type)) {
+      blob = await toPng(blob);
+    }
+
+    // 3) Write as image/png
+    const item = new ClipboardItem({ "image/png": blob });
+    await navigator.clipboard.write([item]);
+
+    toast("✅ Image copied to clipboard");
+  } catch (err) {
+    console.error("Copy image failed:", err);
+    toast("❌ Copy failed (PNG). Check permissions / HTTPS.");
+  }
+}
+
+async function toPng(inputBlob) {
+  // Create a bitmap and draw to a same-origin canvas
+  const bmp = await createImageBitmap(inputBlob);
+  const canvas = document.createElement("canvas");
+  canvas.width = bmp.width;
+  canvas.height = bmp.height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(bmp, 0, 0);
+  // Convert canvas → PNG blob
+  return await new Promise((resolve, reject) =>
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error("toBlob failed")), "image/png", 1.0)
+  );
+}
+
+function toast(msg, ms = 1600) {
+  let t = document.getElementById("toast");
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "toast";
+    document.body.appendChild(t);
+    Object.assign(t.style, {
+      position: "fixed", left: "50%", bottom: "20px", transform: "translateX(-50%)",
+      padding: "8px 12px", background: "rgba(0,0,0,.75)", color: "#fff",
+      borderRadius: "8px", fontSize: "14px", zIndex: "9999", opacity: "0",
+      transition: "opacity 150ms ease"
+    });
+  }
+  t.textContent = msg;
+  t.style.opacity = "1";
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => (t.style.opacity = "0"), ms);
+}
 
 
 document.addEventListener("DOMContentLoaded", () => {
