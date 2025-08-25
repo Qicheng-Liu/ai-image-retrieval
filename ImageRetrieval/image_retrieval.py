@@ -40,7 +40,10 @@ OBJECTIVE
 MATCHING & RANKING RULES (LABELS ARE MOST IMPORTANT)
 - Recommend ONLY images that appear in the numbered archive above.
 - For each of the 5 generated keywords (EXCLUDE the original input keyword), search the archive paths.
-- Treat hyphens/underscores/spaces as equivalent when matching terms; match is case-insensitive.
+- Treat hyphens/underscores/spaces as equivalent; match is case-insensitive.
+- EXPANSION (matching only; do NOT output these terms):
+  * For each generated keyword, derive up to 3 close variants (lemma/singular/plural, common synonyms, clinical shorthand).
+  * Match against (keyword OR any variant). Variants are only for matching, not for YAML keys.
 
 SCORING (higher is better):
   LABEL SIGNALS
@@ -49,19 +52,20 @@ SCORING (higher is better):
   - +1 for each ADDITIONAL distinct profile label matched (beyond the first), up to +2 extra.
 
   KEYWORD SIGNALS
-  - +2 if the path contains the generated keyword in a leaf folder or filename segment.
-  - +1 if the path contains the generated keyword anywhere else.
+  - +2 if the (keyword OR its variant) appears in a leaf folder or filename segment.
+  - +1 if it appears anywhere else.
 
   TIE-BREAKERS (apply in order):
   1) More distinct profile labels matched (count).
-  2) Generated keyword present in a leaf segment.
+  2) Generated keyword (or variant) present in a leaf segment.
   3) Shorter full path length.
   4) Alphabetical order.
 
 SELECTION
-- For each generated keyword, select the highest-scoring items. OPTIONAL: cap at 6 images per keyword.
-- If profile labels are present and ≥1 label-matching item exists for that keyword, the TOP item for that keyword MUST include a label match.
-- After selecting per-keyword lists, perform a light global re-rank within each list so that items matching more/different labels appear earlier.
+- For each generated keyword, select the highest-scoring items.
+- Per keyword, return 3–6 unique IDs when that many matches exist; otherwise return all available (minimum 1).
+- If labels are present and ≥1 label-matching item exists for that keyword, the TOP item for that keyword MUST include a label match.
+- Encourage diversity within each keyword's list: prefer items that match different labels and/or different parent folders when scores are close.
 
 MANDATORY OUTPUT RULES (NO RAW PATHS)
 - Output only archive IDs (integers). Never write or retype path strings.
@@ -83,7 +87,7 @@ CONSTRAINTS
 - Top-level keys MUST be exactly (and in this order): "Input Keyword" and "keywords".
 - "Input Keyword" MUST equal "{keyword}" (case and spacing preserved).
 - Under "keywords", include exactly 5 generated keywords (input keyword excluded).
-- Each generated keyword MUST list ≥1 item as "id: <integer>".
+- For each generated keyword, list 3–6 IDs when available; otherwise list all available (minimum 1).
 - IDs MUST exist in the archive list and must not repeat within the same keyword.
 - If labels were provided:
   * ≥3 of the 5 generated keywords MUST align with the labels (exact or close synonym).
@@ -91,13 +95,14 @@ CONSTRAINTS
 
 SELF-CHECK BEFORE OUTPUT
 - Confirm there are exactly 5 unique generated keyword keys.
-- Confirm each generated keyword has ≥1 "id".
+- Confirm each generated keyword lists the required number of IDs (3–6 when available; otherwise ≥1).
 - Confirm every "id" exists in the archive list.
 - If labels were provided and matches exist, confirm:
   * ≥3 label-aligned generated keywords.
   * The first item under each label-aligned keyword matches at least one label.
 - Confirm there are no raw path strings anywhere in the YAML.
 """
+
 
 
 
